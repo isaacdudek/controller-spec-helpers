@@ -8,7 +8,11 @@ module Controllers
 
     module DSL
       def current_user(&block)
-        let :current_user, &block if block.present?
+        if block.present?
+          let :current_user, &block
+
+          metadata[:current_role] = block.call.role
+        end
       end
     end
   end

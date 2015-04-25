@@ -10,9 +10,13 @@ module Controllers
       def authenticated(&block)
         if block.present?
           context 'authenticated' do
-            before {sign_in current_user}
+            before do
+              current_user.update_column :role, role if respond_to?(:role)
 
-            before {request}
+              sign_in current_user
+
+              request
+            end
 
             class_exec &block
           end
