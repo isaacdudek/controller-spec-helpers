@@ -23,13 +23,13 @@ module Controllers
             context role do
               let(:role) {role}
 
-              response do
-                it {should have_http_status(:redirect)}
-                it {should redirect_to(dashboard_path)}
-              end
+              it 'exhibits standard unauthorized behavior' do
+                # response
+                expect(response).to have_http_status(:redirect)
+                expect(response).to redirect_to(dashboard_path)
 
-              flash do
-                it {should set_flash[:alert].to('You are not authorized to view this page.')}
+                # flash
+                expect(subject).to set_flash[:alert].to('You are not authorized to view this page.')
               end
             end
           end

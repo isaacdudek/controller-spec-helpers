@@ -25,13 +25,13 @@ module Controllers
         context 'unauthenticated' do
           before {request}
 
-          response do
-            it {should have_http_status(:redirect)}
-            it {should redirect_to(new_user_session_path)}
-          end
+          it 'exhibits standard unauthenticated behavior' do
+            # response
+            expect(response).to have_http_status(:redirect)
+            expect(response).to redirect_to(new_user_session_path)
 
-          flash do
-            it {should set_flash[:alert].to('You need to sign in or sign up before continuing.')}
+            # flash
+            expect(subject).to set_flash[:alert].to('You need to sign in or sign up before continuing.')
           end
         end
       end
