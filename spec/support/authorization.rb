@@ -8,9 +8,7 @@ shared_context 'authorization' do
       context role do
         let(:authorization_role) {role}
 
-        describe 'response' do
-          subject {response}
-
+        response do
           it {should have_http_status(:redirect) unless role == authorized_role}
           it {should redirect_to(root_path) unless role == authorized_role}
         end

@@ -6,9 +6,7 @@ shared_context 'authentication', authentication: true do
   context 'unauthenticated' do
     let(:sign_in?) {false}
 
-    describe 'response' do
-      subject {response}
-
+    response do
       it {should have_http_status(:redirect)}
       it {should redirect_to(new_user_session_path)}
     end
