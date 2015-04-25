@@ -13,7 +13,7 @@ shared_context 'authorization' do
           it {should redirect_to(root_path) unless role == authorized_role}
         end
 
-        describe 'flash' do
+        flash do
           it {should set_flash[:alert].to('You are not authorized to view this page.') unless role == authorized_role}
         end
       end

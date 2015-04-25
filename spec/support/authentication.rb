@@ -11,7 +11,7 @@ shared_context 'authentication', authentication: true do
       it {should redirect_to(new_user_session_path)}
     end
 
-    describe 'flash' do
+    flash do
       it {should set_flash[:alert].to('You need to sign in or sign up before continuing.')}
     end
   end
