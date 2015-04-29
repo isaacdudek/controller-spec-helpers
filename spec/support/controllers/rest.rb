@@ -3,19 +3,27 @@ module Controllers
     extend ActiveSupport::Concern
 
     def resource_class
-      described_class.controller_name.classify.constantize
+      element_name.classify.constantize
+    end
+
+    def collection_name
+      described_class.controller_name
+    end
+
+    def element_name
+      collection_name.singularize
     end
 
     def collection
-      send self.class.collection_instance_variable_name
+      send collection_name
     end
 
     def element
-      send self.class.element_instance_variable_name
+      send element_name
     end
 
     def collection_path
-      send "#{self.class.collection_instance_variable_name}_path"
+      send "#{collection_name}_path"
     end
 
     def template_path(template_name)
@@ -31,67 +39,50 @@ module Controllers
         send "restful_#{action}", options
       end
 
-      def collection_instance_variable_name
-        described_class.controller_name
-      end
-
-      def element_instance_variable_name
-        collection_instance_variable_name.singularize
-      end
-
       private
 
       def restful_index(options = {})
-        response do
-          it {should have_http_status(:ok)}
-          it {should render_template(template_path('index'))}
-        end
+        it 'exhibits RESTful index behavior' do
+          # response
+          expect(response).to have_http_status(:ok)
+          expect(response).to render_template(template_path('index'))
 
-        assigns do
-          assigns collection_instance_variable_name do
-            it {should be_an(ActiveRecord::Relation)}
-            it {should all(be_a(resource_class))}
-            it {should match_array(collection)}
-          end
-        end
+          # assigns
+          expect(assigns(collection_name)).to be_an(ActiveRecord::Relation)
+          expect(assigns(collection_name)).to all(be_a(resource_class))
+          expect(assigns(collection_name)).to match_array(collection)
 
-        flash do
-          it {should_not set_flash}
+          # flash
+          expect(subject).to_not set_flash
         end
       end
 
       def restful_show(options = {})
-        response do
-          it {should have_http_status(:ok)}
-          it {should render_template(template_path('show'))}
-        end
+        it 'exhibits RESTful show behavior' do
+          # response
+          expect(response).to have_http_status(:ok)
+          expect(response).to render_template(template_path('show'))
 
-        assigns do
-          assigns element_instance_variable_name do
-            it {should be_a(resource_class)}
-            it {should eq(element)}
-          end
-        end
+          # assigns
+          expect(assigns(element_name)).to be_a(resource_class)
+          expect(assigns(element_name)).to eq(element)
 
-        flash do
-          it {should_not set_flash}
+          # flash
+          expect(subject).to_not set_flash
         end
       end
 
       def restful_new(options = {})
-        response do
-          it {should have_http_status(:ok)}
-          it {should render_template(template_path('new'))}
-        end
+        it 'exhibits RESTful new behavior' do
+          # response
+          expect(response).to have_http_status(:ok)
+          expect(response).to render_template(template_path('new'))
 
-        assigns do
-          assigns element_instance_variable_name do
-            it {should be_a_new(resource_class)}
-          end
-        end
+          # assigns
+          expect(assigns(element_name)).to be_a_new(resource_class)
 
-        flash do
-          it {should_not set_flash}
+          # flash
+          expect(subject).to_not set_flash
         end
       end
 
@@ -99,54 +90,45 @@ module Controllers
         options.reverse_merge! valid_params: true
 
         if options[:valid_params]
-          response do
-            it {should have_http_status(:redirect)}
-            it {should redirect_to(resource_class.last)}
-          end
+          it 'exhibits RESTful valid create behavior' do
+            # response
+            expect(response).to have_http_status(:redirect)
+            expect(response).to redirect_to(resource_class.last)
 
-          assigns do
-            assigns element_instance_variable_name do
-              it {should be_a(resource_class)}
-              it {should be_persisted}
-            end
-          end
+            # assigns
+            expect(assigns(element_name)).to be_a(resource_class)
+            expect(assigns(element_name)).to be_persisted
 
-          flash do
-            it {should set_flash[:notice]}
+            # flash
+            expect(subject).to set_flash[:notice]
           end
         else
-          response do
-            it {should have_http_status(:ok)}
-            it {should render_template(template_path('new'))}
-          end
+          it 'exhibits RESTful invalid create behavior' do
+            # response
+            expect(response).to have_http_status(:ok)
+            expect(response).to render_template(template_path('new'))
 
-          assigns do
-            assigns element_instance_variable_name do
-              it {should be_a_new(resource_class)}
-            end
-          end
+            # assigns
+            expect(assigns(element_name)).to be_a_new(resource_class)
 
-          flash do
-            it {should_not set_flash}
+            # flash
+            expect(subject).to_not set_flash
           end
         end
       end
 
       def restful_edit(options = {})
-        response do
-          it {should have_http_status(:ok)}
-          it {should render_template(template_path('edit'))}
-        end
+        it 'exhibits RESTful edit behavior' do
+          # response
+          expect(response).to have_http_status(:ok)
+          expect(response).to render_template(template_path('edit'))
 
-        assigns do
-          assigns element_instance_variable_name do
-            it {should be_a(resource_class)}
-            it {should eq(element)}
-          end
-        end
+          # assigns
+          expect(assigns(element_name)).to be_a(resource_class)
+          expect(assigns(element_name)).to eq(element)
 
-        flash do
-          it {should_not set_flash}
+          # flash
+          expect(subject).to_not set_flash
         end
       end
 
@@ -154,56 +136,47 @@ module Controllers
         options.reverse_merge! valid_params: true
 
         if options[:valid_params]
-          response do
-            it {should have_http_status(:redirect)}
-            it {should redirect_to(element)}
-          end
+          it 'exhibits RESTful valid update behavior' do
+            # response
+            expect(response).to have_http_status(:redirect)
+            expect(response).to redirect_to(element)
 
-          assigns do
-            assigns element_instance_variable_name do
-              it {should be_a(resource_class)}
-              it {should eq(element)}
-            end
-          end
+            # assigns
+            expect(assigns(element_name)).to be_a(resource_class)
+            expect(assigns(element_name)).to eq(element)
 
-          flash do
-            it {should set_flash[:notice]}
+            # flash
+            expect(subject).to set_flash[:notice]
           end
         else
-          response do
-            it {should have_http_status(:ok)}
-            it {should render_template(template_path('edit'))}
-          end
+          it 'exhibits RESTful invalid update behavior' do
+            # response
+            expect(response).to have_http_status(:ok)
+            expect(response).to render_template(template_path('edit'))
 
-          assigns do
-            assigns element_instance_variable_name do
-              it {should be_a(resource_class)}
-              it {should eq(element)}
-            end
-          end
+            # assigns
+            expect(assigns(element_name)).to be_a(resource_class)
+            expect(assigns(element_name)).to eq(element)
 
-          flash do
-            it {should_not set_flash}
+            # flash
+            expect(subject).to_not set_flash
           end
         end
       end
 
       def restful_destroy(options = {})
-        response do
-          it {should have_http_status(:redirect)}
-          it {should redirect_to(collection_path)}
-        end
+        it 'exhibits RESTful destroy behavior' do
+          # response
+          expect(response).to have_http_status(:redirect)
+          expect(response).to redirect_to(collection_path)
 
-        assigns do
-          assigns element_instance_variable_name do
-            it {should be_a(resource_class)}
-            it {should eq(element)}
-            it {should be_destroyed}
-          end
-        end
+          # assigns
+          expect(assigns(element_name)).to be_a(resource_class)
+          expect(assigns(element_name)).to eq(element)
+          expect(assigns(element_name)).to be_destroyed
 
-        flash do
-          it {should set_flash[:notice]}
+          # flash
+          expect(subject).to set_flash[:notice]
         end
       end
     end
