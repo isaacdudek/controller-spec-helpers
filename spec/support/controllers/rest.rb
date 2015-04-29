@@ -35,13 +35,13 @@ module Controllers
     end
 
     module DSL
-      def restful(action, options = {})
-        send "restful_#{action}", options
+      def restful(action, &block)
+        send "restful_#{action}", &block
       end
 
       private
 
-      def restful_index(options = {})
+      def restful_index(&block)
         it 'exhibits RESTful index behavior' do
           # response
           expect(response).to have_http_status(:ok)
@@ -57,7 +57,7 @@ module Controllers
         end
       end
 
-      def restful_show(options = {})
+      def restful_show(&block)
         it 'exhibits RESTful show behavior' do
           # response
           expect(response).to have_http_status(:ok)
@@ -72,7 +72,7 @@ module Controllers
         end
       end
 
-      def restful_new(options = {})
+      def restful_new(&block)
         it 'exhibits RESTful new behavior' do
           # response
           expect(response).to have_http_status(:ok)
@@ -86,10 +86,10 @@ module Controllers
         end
       end
 
-      def restful_create(options = {})
-        options.reverse_merge! valid_params: true
+      def restful_create(&block)
+        context 'valid' do
+          let(:attributes) {valid_attributes}
 
-        if options[:valid_params]
           it 'exhibits RESTful valid create behavior' do
             # response
             expect(response).to have_http_status(:redirect)
@@ -102,7 +102,13 @@ module Controllers
             # flash
             expect(subject).to set_flash[:notice]
           end
-        else
+
+          class_exec &block if block.present?
+        end
+
+        context 'invalid' do
+          let(:attributes) {invalid_attributes}
+
           it 'exhibits RESTful invalid create behavior' do
             # response
             expect(response).to have_http_status(:ok)
@@ -117,7 +123,7 @@ module Controllers
         end
       end
 
-      def restful_edit(options = {})
+      def restful_edit(&block)
         it 'exhibits RESTful edit behavior' do
           # response
           expect(response).to have_http_status(:ok)
@@ -132,10 +138,10 @@ module Controllers
         end
       end
 
-      def restful_update(options = {})
-        options.reverse_merge! valid_params: true
+      def restful_update(&block)
+        context 'valid' do
+          let(:attributes) {valid_attributes}
 
-        if options[:valid_params]
           it 'exhibits RESTful valid update behavior' do
             # response
             expect(response).to have_http_status(:redirect)
@@ -148,7 +154,13 @@ module Controllers
             # flash
             expect(subject).to set_flash[:notice]
           end
-        else
+
+          class_exec &block if block.present?
+        end
+
+        context 'invalid' do
+          let(:attributes) {invalid_attributes}
+
           it 'exhibits RESTful invalid update behavior' do
             # response
             expect(response).to have_http_status(:ok)
@@ -164,7 +176,7 @@ module Controllers
         end
       end
 
-      def restful_destroy(options = {})
+      def restful_destroy(&block)
         it 'exhibits RESTful destroy behavior' do
           # response
           expect(response).to have_http_status(:redirect)
