@@ -10,12 +10,12 @@ module Controllers
       def authenticated(&block)
         if block.present?
           context 'authenticated' do
-            before do
+            before do |example|
               current_user.update_column :role, role if respond_to?(:role)
 
               sign_in current_user
 
-              request
+              request unless example.metadata[:defer_request]
             end
 
             class_exec &block

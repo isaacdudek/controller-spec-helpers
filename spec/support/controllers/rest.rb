@@ -90,7 +90,10 @@ module Controllers
         context 'valid' do
           let(:attributes) {valid_attributes}
 
-          it 'exhibits RESTful valid create behavior' do
+          it 'exhibits RESTful valid create behavior', :defer_request do
+            # request
+            expect {request}.to change(resource_class, :count).by(1)
+
             # response
             expect(response).to have_http_status(:redirect)
             expect(response).to redirect_to(resource_class.last)
@@ -109,7 +112,10 @@ module Controllers
         context 'invalid' do
           let(:attributes) {invalid_attributes}
 
-          it 'exhibits RESTful invalid create behavior' do
+          it 'exhibits RESTful invalid create behavior', :defer_request do
+            # request
+            expect {request}.to_not change(resource_class, :count)
+
             # response
             expect(response).to have_http_status(:ok)
             expect(response).to render_template(template_path('new'))
@@ -142,7 +148,10 @@ module Controllers
         context 'valid' do
           let(:attributes) {valid_attributes}
 
-          it 'exhibits RESTful valid update behavior' do
+          it 'exhibits RESTful valid update behavior', :defer_request do
+            # request
+            expect {request}.to_not change(resource_class, :count)
+
             # response
             expect(response).to have_http_status(:redirect)
             expect(response).to redirect_to(element)
@@ -161,7 +170,10 @@ module Controllers
         context 'invalid' do
           let(:attributes) {invalid_attributes}
 
-          it 'exhibits RESTful invalid update behavior' do
+          it 'exhibits RESTful invalid update behavior', :defer_request do
+            # request
+            expect {request}.to_not change(resource_class, :count)
+
             # response
             expect(response).to have_http_status(:ok)
             expect(response).to render_template(template_path('edit'))
@@ -177,7 +189,10 @@ module Controllers
       end
 
       def restful_destroy(&block)
-        it 'exhibits RESTful destroy behavior' do
+        it 'exhibits RESTful destroy behavior', :defer_request do
+          # request
+          expect {request}.to change(resource_class, :count).by(-1)
+
           # response
           expect(response).to have_http_status(:redirect)
           expect(response).to redirect_to(collection_path)
