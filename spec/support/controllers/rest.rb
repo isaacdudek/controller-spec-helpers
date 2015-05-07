@@ -23,11 +23,27 @@ module Controllers
     end
 
     def collection_path
-      send "#{collection_name}_path"
+      send "#{namespace_prefix}#{collection_name}_path"
     end
 
     def template_path(template_name)
       File.join described_class.controller_path, template_name
+    end
+
+    def namespace_array
+      described_class.controller_path.split('/')[0..-2]
+    end
+
+    def namespace_prefix
+      if namespace_array.empty?
+        ''
+      else
+        namespace_array.join('_') + '_'
+      end
+    end
+
+    def namespaced_resource_path(resource)
+      polymorphic_path(namespace_array + [resource])
     end
 
     included do
@@ -96,7 +112,7 @@ module Controllers
 
             # response
             expect(response).to have_http_status(:redirect)
-            expect(response).to redirect_to(resource_class.last)
+            expect(response).to redirect_to(namespaced_resource_path(resource_class.last))
 
             # assigns
             expect(assigns(element_name)).to be_a(resource_class)
@@ -154,7 +170,7 @@ module Controllers
 
             # response
             expect(response).to have_http_status(:redirect)
-            expect(response).to redirect_to(element)
+            expect(response).to redirect_to(namespaced_resource_path(element))
 
             # assigns
             expect(assigns(element_name)).to be_a(resource_class)
@@ -212,4 +228,5 @@ end
 
 RSpec.configure do |config|
   config.include Controllers::REST, type: :controller
+  config.include Rails.application.routes.url_helpers
 end
